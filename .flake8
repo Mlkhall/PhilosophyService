@@ -1,6 +1,22 @@
 [flake8]
 max-line-length = 120
-extend-ignore = E203, W503
+extend-ignore = [
+    E203,  # whitespace before ':'
+    WPS305,  # Found `f` string
+    WPS306,  # Found class without a base class
+    WPS317,  # Found incorrect multi-line parameters
+    WPS318,  # Found extra indentation
+    WPS326,  # Found implicit string concatenation
+    D100,  # Missing docstring in public module
+    D101,  # Missing docstring in public class
+    D102,  # Missing docstring in public method
+    D103,  # Missing docstring in public function
+    D104,  # Missing docstring in public package
+    D105,  # Missing docstring in magic method
+    D106,  # Missing docstring in public nested class
+    D107,  # Missing docstring in __init__
+    WPS411,  # Found wrong metadata variable: __version__
+]
 max-complexity = 10
 exclude =
     .git,

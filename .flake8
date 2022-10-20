@@ -16,11 +16,24 @@ extend-ignore = [
     D106,  # Missing docstring in public nested class
     D107,  # Missing docstring in __init__
     WPS411,  # Found wrong metadata variable: __version__
+    Q000, # Remove bad quotes
 ]
+
 max-complexity = 10
 exclude =
+    LICENSE,
+    README.md,
+    .gitignore,
+    .pre-commit-config.yaml,
     .git,
+    .flake8,
     __pycache__,
     build,
     dist,
-    venv
+    venv,
+    pyproject.toml,
+    philosophy_app/manage.py,
+    philosophy_app/philosophy_app/wsgi.py,
+    philosophy_app/philosophy_app/asgi.py,
+    philosophy_app/philosophy_app/urls.py,
+    philosophy_app/philosophy_app/settings.py

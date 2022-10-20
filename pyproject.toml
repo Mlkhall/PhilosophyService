@@ -45,3 +45,19 @@ exclude = '''
 [tool.isort]
 profile = "black"
 line_length = 120
+
+[tool.mypy]
+python_version = '3.10'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''

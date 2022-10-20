@@ -584,3 +584,5 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+.mypy_cache
+.pytest_cache

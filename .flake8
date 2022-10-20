@@ -36,4 +36,8 @@ exclude =
     philosophy_app/philosophy_app/wsgi.py,
     philosophy_app/philosophy_app/asgi.py,
     philosophy_app/philosophy_app/urls.py,
-    philosophy_app/philosophy_app/settings.py
+    philosophy_app/philosophy_app/settings.py,
+    .env,
+    .dockerignore,
+    .gitlab-ci.yml,
+    docker-compose.yml,

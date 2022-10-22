@@ -16,11 +16,13 @@ extend-ignore = [
     D106,  # Missing docstring in public nested class
     D107,  # Missing docstring in __init__
     WPS411,  # Found wrong metadata variable: __version__
-    Q000, # Remove bad quotes
+    Q000 # Remove bad quotes
 ]
 
 max-complexity = 10
 exclude =
+    doc/*,
+    db/*,
     LICENSE,
     README.md,
     .gitignore,
@@ -40,4 +42,4 @@ exclude =
     .env,
     .dockerignore,
     .gitlab-ci.yml,
-    docker-compose.yml,
+    docker-compose.yml

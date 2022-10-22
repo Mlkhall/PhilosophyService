@@ -1,0 +1,132 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class article_text {
+   text: text
+   date_add: timestamp with time zone
+   date_update: timestamp with time zone
+   id: uuid
+}
+class authors {
+   name: text
+   description: text
+   date_add: timestamp with time zone
+   date_update: timestamp with time zone
+   id: uuid
+}
+class authors_articles {
+   author_id: uuid
+   article_id: uuid
+   date_add: timestamp with time zone
+   date_update: timestamp with time zone
+   id: uuid
+}
+class cyberleninka {
+   text_id: uuid
+   tittle: text
+   magazine_name: text
+   keywords: text
+   filed_of_science: text
+   annotation: text
+   en_annotation: text
+   source_url: text
+   pdf_url: text
+   publication_year: bigint
+   date_add: timestamp with time zone
+   date_update: timestamp with time zone
+   id: uuid
+}
+class gtmarket {
+   tittle: text
+   nomination: text
+   text_id: uuid
+   source_url: text
+   definition: text
+   date_publish: date
+   date_add: timestamp with time zone
+   date_update: timestamp with time zone
+   id: uuid
+}
+class magazine_issues {
+   id_magazine: uuid
+   release_date: time
+   source_url: text
+   date_add: time
+   date_update: time
+   id: uuid
+}
+class magazines {
+   descriptions: text
+   url: text
+   date_add: time
+   date_update: time
+   id: uuid
+}
+class magazines_article {
+   tittle: text
+   magazine_name: text
+   magazine_issues_name: text
+   annotation: text
+   citation: text
+   source_url: text
+   pdf_url: text
+   magazine_id: uuid
+   magazine_issues_id: uuid
+   text_id: uuid
+   date_add: time
+   date_update: time
+   id: uuid
+}
+class major_article_info {
+   title: text
+   source_url: text
+   id: uuid
+}
+class philosophy_ru {
+   tittle: text
+   publication_year: integer
+   publishing_house: text
+   category: text
+   url_pdf: text
+   source_url: text
+   for_citation: text
+   source: text
+   annotation: text
+   about: text
+   date_add: timestamp with time zone
+   date_update: timestamp with time zone
+   id: uuid
+}
+class tags {
+   name: char []
+   date_add: timestamp with time zone
+   date_update: timestamp with time zone
+   id: uuid
+}
+class tags_article {
+   tag_name: char []
+   id_tag: uuid
+   article_id: uuid
+   date_add: timestamp with time zone
+   date_update: timestamp with time zone
+   id: uuid
+}
+
+authors_articles    -[#595959,plain]-^  authors            : "author_id:id"
+authors_articles    -[#595959,plain]-^  major_article_info : "article_id:id"
+cyberleninka        -[#595959,plain]-^  article_text       : "text_id:id"
+cyberleninka        -[#595959,plain]-^  major_article_info : "id"
+gtmarket            -[#595959,plain]-^  article_text       : "text_id:id"
+gtmarket            -[#595959,plain]-^  major_article_info : "id"
+magazine_issues     -[#595959,plain]-^  magazines          : "id_magazine:id"
+magazines_article   -[#595959,plain]-^  article_text       : "text_id:id"
+magazines_article   -[#595959,plain]-^  magazine_issues    : "magazine_issues_id:id"
+magazines_article   -[#595959,plain]-^  magazines          : "magazine_id:id"
+magazines_article   -[#595959,plain]-^  major_article_info : "id"
+philosophy_ru       -[#595959,plain]-^  major_article_info : "id"
+tags_article        -[#595959,plain]-^  major_article_info : "article_id:id"
+tags_article        -[#595959,plain]-^  tags               : "id_tag:id"
+@enduml

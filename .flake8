@@ -21,25 +21,27 @@ extend-ignore = [
 
 max-complexity = 10
 exclude =
-    doc/*,
-    db/*,
-    LICENSE,
-    README.md,
-    .gitignore,
-    .pre-commit-config.yaml,
-    .git,
-    .flake8,
-    __pycache__,
-    build,
-    dist,
-    venv,
-    pyproject.toml,
-    philosophy_app/manage.py,
-    philosophy_app/philosophy_app/wsgi.py,
-    philosophy_app/philosophy_app/asgi.py,
-    philosophy_app/philosophy_app/urls.py,
-    philosophy_app/philosophy_app/settings.py,
+    *test*, # exclude tests
+    doc/*, # exclude docs
+    db/*, # exclude db
+    LICENSE, # exclude license
+    README.md, # exclude readme
+    .gitignore, # exclude gitignore
+    .pre-commit-config.yaml, # exclude pre-commit config
+    .git, # exclude git
+    .flake8, # exclude flake8 config
+    __pycache__, # exclude pycache
+    build, # exclude build
+    dist, # exclude dist
+    *venv*, # exclude venv
+    pyproject.toml, # exclude pyproject.toml
+    *manage.py, # exclude manage.py
+    *wsgi.py, # exclude wsgi.py
+    *asgi.py, # exclude asgi.py
+    *urls.py, # exclude urls.py
+    *settings.py, # exclude settings.py
     .env,
     .dockerignore,
     .gitlab-ci.yml,
-    docker-compose.yml
+    docker-compose.yml,
+    poetry.lock, # exclude poetry.lock

@@ -16,7 +16,12 @@ extend-ignore = [
     D106,  # Missing docstring in public nested class
     D107,  # Missing docstring in __init__
     WPS411,  # Found wrong metadata variable: __version__
-    Q000 # Remove bad quotes
+    Q000, # Remove bad quotes
+    WPS115, # Found too many module members
+    S104, # Found insecure use of temp file
+    DAR201, # Missing "Returns" in Docstring
+    WPS430, # Found nested function: ...
+    WPS300, # Found local folder import
 ]
 
 max-complexity = 10

@@ -3,6 +3,6 @@ web_hosts = {
     "gtmarket": "https://gtmarket.ru/encyclopedia/",
     "philosophy": "https://www.philosophy.ru/library",
     "journals": "https://iphras.ru/journals.htm",
-    "elibrary": "elibrary.ru",
-    "habr": "habr.ru",
+    # "elibrary": "https://elibrary.ru",
+    "habr": "https://habr.ru",
 }

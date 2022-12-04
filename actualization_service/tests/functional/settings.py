@@ -11,7 +11,7 @@ class TestSettings(BaseSettings):
     POSTGRES_PASSWORD: str = Field("password", env="POSTGRES_PASSWORD")
     POSTGRES_SCHEMA: str = Field("philosophy", env="POSTGRES_SCHEMA")
     POSTGRES_HOST: str = Field("0.0.0.0", env="POSTGRES_HOST")
-    POSTGRES_PORT: int = Field(5431, env="POSTGRES_PORT")
+    POSTGRES_PORT: int = Field(5430, env="POSTGRES_PORT")
     POSTGRES_DB: str = Field("postgres", env="POSTGRES_DB")
 
     @property

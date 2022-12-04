@@ -1,0 +1,57 @@
+[flake8]
+max-line-length = 120
+extend-ignore = [
+    E203,  # whitespace before ':'
+    WPS305,  # Found `f` string
+    WPS306,  # Found class without a base class
+    WPS317,  # Found incorrect multi-line parameters
+    WPS318,  # Found extra indentation
+    WPS326,  # Found implicit string concatenation
+    D100,  # Missing docstring in public module
+    D101,  # Missing docstring in public class
+    D102,  # Missing docstring in public method
+    D103,  # Missing docstring in public function
+    D104,  # Missing docstring in public package
+    D105,  # Missing docstring in magic method
+    D106,  # Missing docstring in public nested class
+    D107,  # Missing docstring in __init__
+    WPS411,  # Found wrong metadata variable: __version__
+    Q000, # Remove bad quotes
+    WPS115, # Found too many module members
+    S104, # Found insecure use of temp file
+    DAR201, # Missing "Returns" in Docstring
+    WPS430, # Found nested function: ...
+    WPS300, # Found local folder import
+    WPS602, # Found shadowed class attribute
+    WPS420, # Found wrong keyword: pass
+    WPS442, # Found outer scope names shadowing
+    WPS463, # Found wrong method signature
+    WPS237, # Found a too complex annotation
+]
+
+max-complexity = 10
+exclude =
+    *test*, # exclude tests
+    doc/*, # exclude docs
+    db/*, # exclude db
+    LICENSE, # exclude license
+    README.md, # exclude readme
+    .gitignore, # exclude gitignore
+    .pre-commit-config.yaml, # exclude pre-commit config
+    .git, # exclude git
+    .flake8, # exclude flake8 config
+    __pycache__, # exclude pycache
+    build, # exclude build
+    dist, # exclude dist
+    *venv*, # exclude venv
+    pyproject.toml, # exclude pyproject.toml
+    *manage.py, # exclude manage.py
+    *wsgi.py, # exclude wsgi.py
+    *asgi.py, # exclude asgi.py
+    *urls.py, # exclude urls.py
+    *settings.py, # exclude settings.py
+    .env,
+    .dockerignore,
+    .gitlab-ci.yml,
+    docker-compose.yml,
+    poetry.lock, # exclude poetry.lock

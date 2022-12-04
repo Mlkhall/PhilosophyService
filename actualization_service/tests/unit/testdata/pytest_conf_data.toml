@@ -1,0 +1,11 @@
+[sources]
+cyberleninka = "https://cyberleninka.ru/article"
+gtmarket = "https://gtmarket.ru/encyclopedia"
+philosophy = "https://www.philosophy.ru/library"
+journals = "https://iphras.ru/journals.html"
+elibrary = "https://elibrary.ru"
+habr = "https://habr.ru"
+
+[test-urls]
+valid_url = "https://www.python.org"
+bad_url = "https://www.qweqrereqr.org/404"

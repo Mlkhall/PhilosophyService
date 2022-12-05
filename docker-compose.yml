@@ -1,6 +1,6 @@
 services:
   db:
-    container_name: db
+    container_name: db_container
     image: postgres:14.3-bullseye
     env_file:
       - db/postgresql/.env

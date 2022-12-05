@@ -3,6 +3,6 @@ services:
     container_name: db
     image: postgres:14.3-bullseye
     env_file:
-      - .env
+      - db/postgresql/.env
     ports:
-      - 5431:5432
+      - 5430:5432

@@ -1,4 +1,5 @@
 import asyncio
+from typing import Tuple, Union, Dict
 
 import asyncpg
 import backoff
@@ -31,7 +32,7 @@ class PostgresDBInterface:
     def __init__(self) -> None:
         self.client_async_pg = AsyncPostgresDB()
 
-    async def get_tables(self) -> tuple[str]:
+    async def get_tables(self) -> Tuple[str]:
         connection = await self.client_async_pg.create_connection()
         tables_names = await connection.execute(
             f"""
@@ -42,7 +43,7 @@ class PostgresDBInterface:
         )
         return tuple(table["table_name"] for table in tables_names)
 
-    async def get_schemas(self) -> tuple[str]:
+    async def get_schemas(self) -> Tuple[str]:
         async with self.client_async_pg as connection:
             schemas_names = await connection.fetch(
                 """
@@ -52,7 +53,7 @@ class PostgresDBInterface:
             )
             return tuple(schema["schema_name"] for schema in schemas_names)
 
-    async def get_table_columns(self, table_name: str) -> tuple[str]:
+    async def get_table_columns(self, table_name: str) -> Tuple[str]:
         connection = await self.client_async_pg.create_connection()
         table_columns = await connection.fetch(
             f"""
@@ -63,8 +64,8 @@ class PostgresDBInterface:
         return tuple(column["column_name"] for column in table_columns)
 
     async def check_row_exists(
-        self, table_name: str, row_id: int | str, column_name: str = "cyberleninka_id"
-    ) -> tuple[str | int, bool]:
+        self, table_name: str, row_id: Union[int, str], column_name: str = "cyberleninka_id"
+    ) -> Tuple[Union[str, int], bool]:
         connection = await self.client_async_pg.create_connection()
         return row_id, await connection.fetch(
             f"""
@@ -86,7 +87,7 @@ class PostgresDBInterface:
 class PostgresWriter:
     interface: PostgresDBInterface = PostgresDBInterface()
 
-    async def write(self, table_name: str, table_data: dict) -> None:
+    async def write(self, table_name: str, table_data: Dict) -> None:
         columns = set(await self.interface.get_table_columns(table_name))
         query = f"""
         INSERT INTO {table_name} ({', '.join(columns)})
@@ -95,7 +96,7 @@ class PostgresWriter:
         await self.interface.execute_query(query)
 
     @backoff.on_exception(backoff.expo, asyncpg.exceptions.ConnectionDoesNotExistError, max_tries=60)
-    def write_demo_cyberleninka(self, articles: tuple[CyberleninkaArticle, ...]) -> None:
+    def write_demo_cyberleninka(self, articles: Tuple[CyberleninkaArticle, ...]) -> None:
         event_loop = asyncio.get_event_loop()
         tasks = asyncio.gather(
             *(self.write(table_name="demo_cyberleninka", table_data=article.postgresql_view) for article in articles),
@@ -104,7 +105,7 @@ class PostgresWriter:
 
     @backoff.on_exception(backoff.expo, asyncpg.exceptions.ConnectionDoesNotExistError, max_tries=60)
     def check_rows_exists(
-        self, table_name: str, rows_id: tuple[str, ...], column_name: str = "cyberleninka_id"
+        self, table_name: str, rows_id: Tuple[str, ...], column_name: str = "cyberleninka_id"
     ) -> bool:
         event_loop = asyncio.get_event_loop()
         tasks = asyncio.gather(

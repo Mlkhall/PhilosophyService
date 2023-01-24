@@ -1,4 +1,6 @@
 from uuid import UUID, uuid4
+from typing import Union, Tuple, Dict
+from datetime import datetime
 
 from pydantic import AnyHttpUrl, Field, HttpUrl, PositiveInt
 from pydantic.dataclasses import dataclass
@@ -9,21 +11,21 @@ class SectionCyberleninkaTag:
     """Humanitarian Sciences Cyberleninka Tag."""
 
     tag_name: str
-    tag_url: HttpUrl | AnyHttpUrl
+    tag_url: Union[HttpUrl, AnyHttpUrl]
 
 
 @dataclass(frozen=True)
 class SectionCyberleninka:
     """Humanitarian Sciences."""
 
-    tags: tuple[SectionCyberleninkaTag, ...]
+    tags: Tuple[SectionCyberleninkaTag, ...]
 
     @property
-    def tags_names(self) -> tuple[str, ...]:
+    def tags_names(self) -> Tuple[str, ...]:
         return tuple(tag.tag_name for tag in self.tags)
 
     @property
-    def tags_urls(self) -> tuple[HttpUrl, ...]:
+    def tags_urls(self) -> Tuple[HttpUrl, ...]:
         return tuple(tag.tag_url for tag in self.tags)
 
 
@@ -31,11 +33,11 @@ class SectionCyberleninka:
 class CyberleninkaPagePagination:
     """Cyberleninka Page."""
 
-    request_url: HttpUrl | AnyHttpUrl
+    request_url: Union[HttpUrl, AnyHttpUrl]
     page_last: PositiveInt
 
     @property
-    def pages_urls(self) -> tuple[HttpUrl, ...]:
+    def pages_urls(self) -> Tuple[HttpUrl, ...]:
         return tuple(f"{self.request_url}/{page}" for page in range(1, self.page_last + 1))
 
 
@@ -43,27 +45,27 @@ class CyberleninkaPagePagination:
 class CyberleninkaPagesPagination:
     """Cyberleninka Pages."""
 
-    pages: tuple[CyberleninkaPagePagination, ...]
+    pages: Tuple[CyberleninkaPagePagination, ...]
 
     @property
-    def pages_urls(self) -> tuple[HttpUrl, ...]:
+    def pages_urls(self) -> Tuple[HttpUrl, ...]:
         return tuple(page.request_url for page in self.pages)
 
     @property
-    def pages_last(self) -> tuple[PositiveInt, ...]:
+    def pages_last(self) -> Tuple[PositiveInt, ...]:
         return tuple(page.page_last for page in self.pages)
 
     def get_generator_all_pages_urls(self):
         return (page_url for page in self.pages for page_url in page.pages_urls)
 
     @property
-    def all_pages_urls(self) -> tuple[HttpUrl, ...]:
+    def all_pages_urls(self) -> Tuple[HttpUrl, ...]:
         return tuple(self.get_generator_all_pages_urls())
 
 
 @dataclass(frozen=True)
 class CyberleninkaArticleOnPage:
-    id_: PositiveInt | str
+    id_: Union[PositiveInt, str]
     title: str
 
     @property
@@ -73,14 +75,14 @@ class CyberleninkaArticleOnPage:
 
 @dataclass(frozen=True)
 class CyberleninkaPageContent:
-    articles: tuple[CyberleninkaArticleOnPage, ...]
-    page_url: HttpUrl | AnyHttpUrl
+    articles: Tuple[CyberleninkaArticleOnPage, ...]
+    page_url: Union[HttpUrl, AnyHttpUrl]
 
 
 @dataclass(frozen=True)
 class CyberleninkaArticleAuthor:
     name: str
-    id_: UUID | str = Field(alias="id", default_factory=uuid4)
+    id_: Union[UUID, str] = Field(alias="id", default_factory=uuid4)
 
     @property
     def first_name(self) -> str:
@@ -94,8 +96,8 @@ class CyberleninkaArticleAuthor:
 @dataclass(frozen=True)
 class CyberleninkaArticleScienceMagazine:
     name: str
-    url: HttpUrl | AnyHttpUrl
-    id_: UUID | str = Field(alias="id", default_factory=uuid4)
+    url: Union[HttpUrl, AnyHttpUrl]
+    id_: Union[UUID, str] = Field(alias="id", default_factory=uuid4)
 
 
 @dataclass(frozen=True)
@@ -103,61 +105,57 @@ class CyberleninkaArticleSimilarTopic:
     name: str
     cyberleninka_id: str
     publication_date: PositiveInt
-    authors: tuple[CyberleninkaArticleAuthor, ...] | None
+    authors: Union[Tuple[CyberleninkaArticleAuthor, ...], None]
 
 
 @dataclass(frozen=True)
 class CyberleninkaAnnotation:
-    current_text: str | None
-    en_text: str | None
+    current_text: Union[str, None]
+    en_text: Union[str, None]
 
 
 @dataclass(frozen=True)
 class CyberleninkaArticle:
     cyberleninka_id: str
     title: str
-    authors: tuple[CyberleninkaArticleAuthor, ...]
+    authors: Tuple[CyberleninkaArticleAuthor, ...]
     publication_date: PositiveInt
     science_magazine: CyberleninkaArticleScienceMagazine
-    annotation: CyberleninkaAnnotation | None
+    annotation: Union[CyberleninkaAnnotation, None]
     article_text: str
     field_of_sciences: str
-    tags: tuple[str, ...] | None
-    keywords: tuple[str, ...] | None
-    similar_topics: tuple[CyberleninkaArticleSimilarTopic, ...] | None
-    source_url: HttpUrl | AnyHttpUrl
-    pdf_url: HttpUrl | AnyHttpUrl
-    id_: UUID | str = Field(alias="id", default_factory=uuid4)
+    tags: Union[Tuple[str, ...], None]
+    keywords: Union[Tuple[str, ...], None]
+    similar_topics: Union[Tuple[CyberleninkaArticleSimilarTopic, ...], None]
+    source_url: Union[HttpUrl, AnyHttpUrl]
+    pdf_url: Union[HttpUrl, AnyHttpUrl]
 
     @property
-    def postgresql_view(self) -> dict:
-        def drop_bad_symbols(text: str) -> str:
-            return text.replace("'", "`").replace('"', "`")
+    def postgresql_view(self) -> Dict:
+        # def drop_bad_symbols(text: str) -> str:
+        #     return text.replace("'", "`").replace('"', "`")
 
         return {
-            "id": str(self.id_),
             "cyberleninka_id": self.cyberleninka_id,
-            "title": drop_bad_symbols(self.title),
-            "authors": drop_bad_symbols(", ".join(author.name for author in self.authors)),
+            "title": self.title,
+            "authors": ", ".join(author.name for author in self.authors),
             "publication_year": self.publication_date,
-            "science_magazine_name": drop_bad_symbols(self.science_magazine.name),
+            "science_magazine_name": self.science_magazine.name,
             "science_magazine_url": str(self.science_magazine.url),
-            "annotation": drop_bad_symbols(self.annotation.current_text)
+            "annotation": self.annotation.current_text
             if self.annotation.current_text is not None
             else "NULL",
-            "annotation_en": drop_bad_symbols(self.annotation.en_text)
+            "annotation_en": self.annotation.en_text
             if self.annotation.en_text is not None
             else "NULL",
-            "article_text": drop_bad_symbols(self.article_text) if self.article_text is not None else "NULL",
-            "field_of_sciences": drop_bad_symbols(self.field_of_sciences),
-            "tags": (drop_bad_symbols(", ".join(self.tags)) if self.tags is not None else "NULL"),
-            "keywords": (drop_bad_symbols(", ".join(self.keywords)) if self.keywords is not None else "NULL"),
+            "article_text":self.article_text if self.article_text is not None else "NULL",
+            "field_of_sciences": self.field_of_sciences,
+            "tags": (", ".join(self.tags) if self.tags is not None else "NULL"),
+            "keywords": (", ".join(self.keywords) if self.keywords is not None else "NULL"),
             "similar_topics": (
-                drop_bad_symbols(
                     ", ".join(
-                        drop_bad_symbols(topic.name) for topic in self.similar_topics if self.similar_topics is not None
+                        topic.name for topic in self.similar_topics if self.similar_topics is not None
                     )
-                )
             ),
             "source_url": str(self.source_url),
             "pdf_url": str(self.pdf_url),

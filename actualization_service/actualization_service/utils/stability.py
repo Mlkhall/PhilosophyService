@@ -1,6 +1,7 @@
 import asyncio
 from functools import wraps
 
+import requests
 import aiohttp
 from loguru import logger
 
@@ -50,6 +51,8 @@ def async_backoff(*, start_sleep_time=0.1, factor=1, border_sleep_time=2):
                 else:
                     if isinstance(response, CollectorResponse):
                         if "ввести капчу" in response.page_content:
+                            requests.get("https://mobileproxy.space/reload.html?proxy_key=1d5f172c1b672075b516e540c0e192cf")
+                            logger.info('GET request for change proxy done')
                             logger.warning(f"Kapcha detected! Waiting for {sleep_time} seconds...")
                             await asyncio.sleep(sleep_time)
                             sleep_time = min(sleep_time * 2**factor, border_sleep_time)

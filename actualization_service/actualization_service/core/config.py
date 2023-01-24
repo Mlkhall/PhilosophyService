@@ -1,3 +1,5 @@
+from typing import Dict, Tuple
+
 from pydantic import (
     BaseModel,
     BaseSettings,
@@ -58,16 +60,16 @@ class PostgresSettings(BaseSettings):
 class ExternalSourcesSettings(BaseModel):
     """Settings for the application."""
 
-    sources: dict[str, HttpUrl] = CONFIG_TOML["sources"]
+    sources: Dict[str, HttpUrl] = CONFIG_TOML["sources"]
 
     @property
-    def sources_names(self) -> tuple[str, ...]:
+    def sources_names(self) -> Tuple[str, ...]:
         return tuple(self.sources.keys())
 
     @property
     def sources_urls(
         self,
-    ) -> tuple[str, ...]:
+    ) -> Tuple[str, ...]:
         return tuple(self.sources.values())
 
 
@@ -82,3 +84,15 @@ class CollectorSettings(BaseSettings):
 
 
 COLLECTOR_SETTINGS = CollectorSettings()
+
+
+@singleton
+class ProxySettings(BaseSettings):
+    """Settings for the application."""
+    PROXY_USER: str = Field('BaW5Ah', env="PROXY_USER")
+    PROXY_PASSWORD: str = Field('Ufys2eK4Puv1', env="PROXY_PASSWORD")
+    PROXY_HOST: str = Field('84.23.53.55', env="PROXY_HOST")
+    PROXY_PORT: int = Field(14295, env="PROXY_PORT")
+
+
+proxy_settings = ProxySettings()

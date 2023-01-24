@@ -1,11 +1,12 @@
 import asyncio
 from abc import ABC, abstractmethod
 from http import HTTPStatus
+from typing import Tuple
 
 import aiohttp
 from loguru import logger
 
-from ..core.config import COLLECTOR_SETTINGS
+from ..core.config import COLLECTOR_SETTINGS, proxy_settings
 from ..models.collector_model import CollectorResponse
 from ..utils.stability import async_backoff
 
@@ -27,8 +28,8 @@ class BaseCollector(ABC):
     @abstractmethod
     def execute_get_requests(
         self,
-        urls: tuple[str, ...],
-    ) -> tuple[CollectorResponse, ...]:
+        urls: Tuple[str, ...],
+    ) -> Tuple[CollectorResponse, ...]:
         pass
 
 
@@ -48,7 +49,8 @@ class AIOHTTPCollector(BaseCollector):
         border_sleep_time=COLLECTOR_SETTINGS.BORDER_TIME_SLEEP,
     )
     async def fetch(session: aiohttp.ClientSession, url: str) -> CollectorResponse:
-        async with session.get(url) as response:
+        conn = 'http://BaW5Ah:Ufys2eK4Puv1@84.23.53.55:14295'
+        async with session.get(url, proxy=conn) as response:
             if response.status == HTTPStatus.OK:
                 logger.success(f"Request to {url} was successful!")
                 return CollectorResponse(
@@ -66,13 +68,15 @@ class AIOHTTPCollector(BaseCollector):
         self,
         url: str,
     ) -> CollectorResponse:
-        async with aiohttp.ClientSession(timeout=self.session_timeout) as session:
+        # connector = f'http://{proxy_settings.PROXY_USER}:{proxy_settings.PROXY_PASSWORD}@{proxy_settings.PROXY_HOST}:{proxy_settings.PROXY_PORT}'
+        conn = 'http://BaW5Ah:Ufys2eK4Puv1@84.23.53.55:14295'
+        async with aiohttp.ClientSession(timeout=self.session_timeout, connector_owner=conn) as session:
             return await self.fetch(session, url)
 
     def execute_single_get_request(self, url: str) -> CollectorResponse:
         return asyncio.run(self._get_request(url))
 
-    def execute_get_requests(self, urls: tuple[str, ...]) -> tuple[CollectorResponse, ...]:
+    def execute_get_requests(self, urls: Tuple[str, ...]) -> Tuple[CollectorResponse, ...]:
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
         async_requests = (self._get_request(url) for url in urls)

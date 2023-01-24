@@ -1,4 +1,5 @@
 from os.path import abspath, dirname, join
+from typing import Dict
 
 import toml
 from pydantic import BaseModel, FilePath
@@ -12,7 +13,7 @@ CURRENT_DIR = dirname(abspath(__file__))
 class ConfigFile(BaseModel):
     file_path: FilePath = join(CURRENT_DIR, "conf_project.toml")
 
-    def get_config_toml(self) -> dict[str, str]:
+    def get_config_toml(self) -> Dict[str, str]:
         return toml.load(self.file_path)
 
 

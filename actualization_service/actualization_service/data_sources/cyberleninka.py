@@ -1,13 +1,16 @@
 from collections import defaultdict
-from typing import Literal
+from typing import Literal, Dict, Tuple, Union
+from datetime import datetime
 
 from alive_progress import alive_bar
 from bs4 import BeautifulSoup
 from pydantic import validate_arguments
+from loguru import logger
 
 from ..collector.interface import AIOHTTPCollector, BaseCollector
 from ..core.config import ExternalSourcesSettings
 from ..db.postgres import PostgresWriter
+from ..db.postgres_sqlalh import PostgresWriterCyberleninka, add
 from ..models import data_sources
 from ..models.collector_model import CollectorResponse
 from ..utils.helper import use_chunks
@@ -20,7 +23,7 @@ class CyberleninkaParser(BaseParser):
     def parse(self, page: str, format_: str) -> BeautifulSoup:
         return BeautifulSoup(page, format_)
 
-    def parse_main_page(self, main_page: CollectorResponse) -> dict[str, list]:
+    def parse_main_page(self, main_page: CollectorResponse) -> Dict[str, list]:
         bs_main_page = self.parse(main_page.page_content, self.parser_type)
         catalog_of_scientific_articles = defaultdict(list)
 
@@ -31,7 +34,7 @@ class CyberleninkaParser(BaseParser):
     def extract_humanitarian_sciences(
         self,
         main_page: CollectorResponse,
-        base_url: str | None = None,
+        base_url: Union[str, None] = None,
     ) -> data_sources.SectionCyberleninka:
         catalog_of_scientific_articles = self.parse_main_page(main_page)
         return data_sources.SectionCyberleninka(
@@ -47,7 +50,7 @@ class CyberleninkaParser(BaseParser):
     @validate_arguments
     def extract_page_pagination(
         self,
-        resources: tuple[CollectorResponse, ...],
+        resources: Tuple[CollectorResponse, ...],
     ) -> data_sources.CyberleninkaPagesPagination:
         pagination = []
         for resource in resources:
@@ -84,7 +87,7 @@ class CyberleninkaParser(BaseParser):
         )
 
     @staticmethod
-    def _extract_similar_topics(page: BeautifulSoup) -> tuple[data_sources.CyberleninkaArticleSimilarTopic, ...]:
+    def _extract_similar_topics(page: BeautifulSoup) -> Tuple[data_sources.CyberleninkaArticleSimilarTopic, ...]:
         topics = page.select_one("body > div.content > div > span > div:nth-child(2) > div:nth-child(11) > div")
         similar_topics = []
         for topic in topics.find_all("li"):
@@ -113,12 +116,12 @@ class CyberleninkaParser(BaseParser):
         return tuple(similar_topics)
 
     @staticmethod
-    def _extract_tags(page: BeautifulSoup) -> tuple[str, ...]:
+    def _extract_tags(page: BeautifulSoup) -> Tuple[str, ...]:
         tags = page.find("div", {"class": "labels"}).findAll("div")
         return tuple(tag.text for tag in tags[1:])
 
     @staticmethod
-    def _extract_keywords(page: BeautifulSoup) -> tuple[str, ...]:
+    def _extract_keywords(page: BeautifulSoup) -> Tuple[str, ...]:
         keywords = page.select(
             "body > div.content > div > span > div:nth-child(2) > div:nth-child(7) > div > i",
         )
@@ -134,7 +137,7 @@ class CyberleninkaParser(BaseParser):
     @staticmethod
     def _extract_author(
         page: BeautifulSoup,
-    ) -> tuple[data_sources.CyberleninkaArticleAuthor, ...]:
+    ) -> Tuple[data_sources.CyberleninkaArticleAuthor, ...]:
         description_text = page.find("div", {"class": "full abstract"})
         if description_text is None:
             authors = page.find("h2", {"class": "right-title"}).text.split("—")[-1]
@@ -146,7 +149,7 @@ class CyberleninkaParser(BaseParser):
         return tuple(data_sources.CyberleninkaArticleAuthor(name=name.strip()) for name in author_names)
 
     @staticmethod
-    def _extract_annotation(page: BeautifulSoup) -> data_sources.CyberleninkaAnnotation | None:
+    def _extract_annotation(page: BeautifulSoup) -> Union[data_sources.CyberleninkaAnnotation, None]:
         current_text = page.find_all("p", {"itemprop": "description"})
         if not current_text:
             return data_sources.CyberleninkaAnnotation(current_text=None, en_text=None)
@@ -172,8 +175,8 @@ class CyberleninkaParser(BaseParser):
         main_page: BeautifulSoup,
         part: Literal["half", "half-right"],
         scientific_catalog: dict,
-    ) -> dict[str, list]:
-        letter: str | None = None
+    ) -> Dict[str, list]:
+        letter: Union[str, None] = None
 
         for catalog in main_page.find("div", {"class": part}).findAll("li"):
             if catalog.get("class") == ["letter"]:
@@ -186,14 +189,14 @@ class CyberleninkaParser(BaseParser):
                     (topic.text, topic.get("href")),
                 )
 
-    def extract_articles_id(self, page: BeautifulSoup) -> tuple[str, ...]:
+    def extract_articles_id(self, page: BeautifulSoup) -> Tuple[str, ...]:
         return tuple(
             article.find("a").get("href").split("/")[-1]
             for article in page.find("ul", {"class": "list"}).find_all("li")
         )
 
     @staticmethod
-    def articles_id2urls(id_: tuple[str, ...]) -> tuple[str, ...]:
+    def articles_id2urls(id_: Tuple[str, ...]) -> Tuple[str, ...]:
         return tuple(f"https://cyberleninka.ru/article/n/{article_id}" for article_id in id_)
 
 
@@ -222,7 +225,7 @@ class Cyberleninka:
         collector_responses = self.collector.execute_get_requests(urls)
         return self.parser.extract_page_pagination(collector_responses)
 
-    def get_articles_from_page(self, page: str) -> tuple[data_sources.CyberleninkaArticle, ...] | None:
+    def get_articles_from_page(self, page: str) -> Union[Tuple[data_sources.CyberleninkaArticle, ...], None]:
         articles_urls = self.get_urls_from_page(page)
 
         ids = tuple(el.split("/")[-1] for el in articles_urls)
@@ -233,12 +236,12 @@ class Cyberleninka:
 
         return self.get_articles_from_urls(valid_url)
 
-    def get_urls_from_page(self, page: str) -> tuple[str, ...]:
+    def get_urls_from_page(self, page: str) -> Tuple[str, ...]:
         bs_page = self.parser.parse(page, self.parser.parser_type)
         articles_id = self.parser.extract_articles_id(bs_page)
         return self.parser.articles_id2urls(articles_id)
 
-    def get_articles_from_urls(self, urls: tuple[str, ...]) -> tuple[data_sources.CyberleninkaArticle, ...]:
+    def get_articles_from_urls(self, urls: Tuple[str, ...]) -> Tuple[data_sources.CyberleninkaArticle, ...]:
         articles_responses = self.collector.execute_get_requests(urls)
         return tuple(
             self.parser.parse_article(article_response)
@@ -255,4 +258,24 @@ class Cyberleninka:
             for page_response in page_responses:
                 articles = self.get_articles_from_page(page_response.page_content)
                 if articles:
-                    self.writer.write_demo_cyberleninka(articles)
+                    for article in articles:
+                        article_good = article.postgresql_view
+                        article_writer = PostgresWriterCyberleninka(
+                            cyberleninka_id=article_good["cyberleninka_id"],
+                            title=article_good["title"],
+                            authors=article_good["authors"],
+                            publication_year=article_good["publication_year"],
+                            science_magazine_name=article_good["science_magazine_name"],
+                            science_magazine_url=article_good["science_magazine_url"],
+                            annotation=article_good["annotation"],
+                            annotation_en=article_good["annotation_en"],
+                            article_text=article_good["article_text"],
+                            field_of_sciences=article_good["field_of_sciences"],
+                            tags=article_good["tags"],
+                            keywords=article_good["keywords"],
+                            similar_topics=article_good["similar_topics"],
+                            source_url=article_good["source_url"],
+                            pdf_url=article_good["pdf_url"]
+                        )
+                        add(article_writer)
+                    # self.writer.write_demo_cyberleninka(articles)

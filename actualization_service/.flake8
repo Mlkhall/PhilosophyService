@@ -4,7 +4,7 @@ extend-ignore = [
     E203,  # whitespace before ':'
     WPS305,  # Found `f` string
     WPS306,  # Found class without a base class
-    WPS317,  # Found incorrect multi-line parameters
+    WPS317,  # Found incorrect multi-lie parameters
     WPS318,  # Found extra indentation
     WPS326,  # Found implicit string concatenation
     D100,  # Missing docstring in public module
